@@ -1,0 +1,3 @@
+module.exports = {
+    target: 'https://example.com/abc/hello-world',
+};
