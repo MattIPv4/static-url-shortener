@@ -20,7 +20,7 @@ module.exports = {
                 returns: 'return',
             },
             preferredTypes: {
-                Function: 'function',
+                object: 'Object',
             },
         },
     },
