@@ -1,30 +1,13 @@
 const path = require('path');
 const getAllFiles = require('../utilities/getAllFiles');
+const validate = require('./validate');
+const segments = require('./segments');
 
 /**
  * @typedef {Object} RedirectTree
  * @property {Object} [data] The redirect target data for this node
  * @property {Object.<string, RedirectTree>} [subpaths] The redirect tree nodes after this path segment
  */
-
-/**
- * Get the path segments for a given redirect data file
- * @param {string} base The full base path for all redirect data
- * @param {string} file The full path to the redirect data file to parse
- * @return {string[]}
- */
-const fileSegments = (base, file) => {
-    // Remove the base directory, remove the JavaScript file ext
-    const cleanFile = path.relative(base, file).replace(/\.js$/, '');
-
-    // Split the file into path segments
-    const segments = cleanFile.split(path.sep).map(segment => segment.toLowerCase());
-
-    // Remove index if last segment
-    if (segments.length && segments[segments.length - 1] === 'index') segments.pop();
-
-    return segments;
-};
 
 /**
  * Parse a given redirect data file and insert it into the redirect tree
@@ -36,25 +19,11 @@ const parseFile = async (base, file, tree) => {
     // Load in the file
     const raw = require(file);
 
-    // Validate that we have an object in the file
-    if (typeof raw !== 'object' || raw === null)
-        throw new Error('Expected data exported in file to be an object');
-
-    // Validate we have the required property
-    if (!Object.prototype.hasOwnProperty.call(raw, 'target'))
-        throw new Error('Expected data exported in file to include a target property');
-
-    // Validate we have a string or function for target
-    if (typeof raw.target !== 'string' && typeof raw.target !== 'function')
-        throw new Error('Expected target property to be either string or function');
-
-    // Execute function and await any promise returned
-    const target = typeof raw.target === 'string' ? raw.target : await raw.target();
-    if (typeof target !== 'string')
-        throw new Error('Expected target property function to return a string');
+    // Validate the raw data and get the target
+    const target = await validate(raw);
 
     // Get the path segments from the file name
-    const pathSegments = fileSegments(base, file);
+    const pathSegments = segments(base, file);
 
     // Find the current tree node for this redirect
     let node = tree;
