@@ -55,13 +55,28 @@ const parseFile = async (base, file, tree) => {
 
     // Get the path segments from the file name
     const pathSegments = fileSegments(base, file);
-    console.log(pathSegments);
 
-    // TODO: Find/create tree node
+    // Find the current tree node for this redirect
+    let node = tree;
+    for (const segment of pathSegments) {
+        // If the current node doesn't have subpaths, create it
+        if (!node.subpaths) node.subpaths = {};
 
-    // TODO: Check for tree collisions
+        // If the current node doesn't have the next segment, add it
+        if (!Object.prototype.hasOwnProperty.call(node.subpaths, segment)) node.subpaths[segment] = {};
 
-    // TODO: Insert data into tree
+        // Move down the tree to the next path segment node
+        node = node.subpaths[segment];
+    }
+
+    // If there is already data, we have a clash
+    if (Object.prototype.hasOwnProperty.call(node, 'data'))
+        throw new Error(`Redirect data already defined for path /${pathSegments.join('/')}`);
+
+    // Insert data into tree (this mutates the passed in tree)
+    node.data = {
+        target,
+    };
 };
 
 /**
@@ -91,4 +106,4 @@ const generateTree = async path => {
 };
 
 // Run for testing
-generateTree(path.join(__dirname, '..', '..', 'data')).then();
+generateTree(path.join(__dirname, '..', '..', 'data')).then(tree => console.log(JSON.stringify(tree, null, 2)));
