@@ -32,11 +32,28 @@ const fileSegments = (base, file) => {
  * @param {string} file The full path to the redirect data file to parse
  * @param {RedirectTree} tree The top-level redirect tree data structure
  */
-const parseFile = (base, file, tree) => {
-    // TODO: Load in file
+const parseFile = async (base, file, tree) => {
+    // Load in the file
+    const raw = require(file);
 
-    // TODO: Validate expected properties
+    // Validate that we have an object in the file
+    if (typeof raw !== 'object' || raw === null)
+        throw new Error('Expected data exported in file to be an object');
 
+    // Validate we have the required property
+    if (!Object.prototype.hasOwnProperty.call(raw, 'target'))
+        throw new Error('Expected data exported in file to include a target property');
+
+    // Validate we have a string or function for target
+    if (typeof raw.target !== 'string' && typeof raw.target !== 'function')
+        throw new Error('Expected target property to be either string or function');
+
+    // Execute function and await any promise returned
+    const target = typeof raw.target === 'string' ? raw.target : await raw.target();
+    if (typeof target !== 'string')
+        throw new Error('Expected target property function to return a string');
+
+    // Get the path segments from the file name
     const pathSegments = fileSegments(base, file);
     console.log(pathSegments);
 
@@ -50,9 +67,9 @@ const parseFile = (base, file, tree) => {
 /**
  * Load all redirect data files from a path and generate a redirect tree
  * @param {string} path The full base path for all redirect data
- * @return {RedirectTree}
+ * @return {Promise<RedirectTree>}
  */
-const generateTree = path => {
+const generateTree = async path => {
     // Fetch all the files in the given path and filter down to JavaScript files
     const files = getAllFiles(path).filter(file => file.endsWith('.js'));
 
@@ -62,11 +79,16 @@ const generateTree = path => {
     // Loop through all the files and parse them
     // We're using an object for tree, so it's passed by reference and we can mutate it directly
     for (const file of files) {
-        parseFile(path, file, tree);
+        try {
+            await parseFile(path, file, tree);
+        } catch (err) {
+            console.error(`Failed to load redirect data from ${file}`);
+            console.error(err);
+        }
     }
 
     return tree;
 };
 
 // Run for testing
-generateTree(path.join(__dirname, '..', '..', 'data'));
+generateTree(path.join(__dirname, '..', '..', 'data')).then();
