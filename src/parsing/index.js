@@ -1,4 +1,3 @@
-const path = require('path');
 const getAllFiles = require('../utilities/getAllFiles');
 const validate = require('./validate');
 const segments = require('./segments');
@@ -29,7 +28,7 @@ const parseFile = async (base, file, tree) => {
     let node = tree;
     for (const segment of pathSegments) {
         // If the current node doesn't have subpaths, create it
-        if (!node.subpaths) node.subpaths = {};
+        if (!Object.prototype.hasOwnProperty.call(node, 'subpaths')) node.subpaths = {};
 
         // If the current node doesn't have the next segment, add it
         if (!Object.prototype.hasOwnProperty.call(node.subpaths, segment)) node.subpaths[segment] = {};
@@ -53,7 +52,7 @@ const parseFile = async (base, file, tree) => {
  * @param {string} path The full base path for all redirect data
  * @return {Promise<RedirectTree>}
  */
-const generateTree = async path => {
+module.exports = async path => {
     // Fetch all the files in the given path and filter down to JavaScript files
     const files = getAllFiles(path).filter(file => file.endsWith('.js'));
 
@@ -73,6 +72,3 @@ const generateTree = async path => {
 
     return tree;
 };
-
-// Run for testing
-generateTree(path.join(__dirname, '..', '..', 'data')).then(tree => console.log(JSON.stringify(tree, null, 2)));
