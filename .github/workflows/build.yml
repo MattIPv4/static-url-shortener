@@ -1,0 +1,53 @@
+name: Build and deploy
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Set Node.js version from .nvmrc
+        id: set-node
+        run: echo "::set-output name=node::$(cat .nvmrc)"
+
+      - name: Use Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ steps.set-node.outputs.node }}
+
+      - name: Cache NPM dependencies
+        uses: actions/cache@v2
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: ${{ runner.os }}-node-
+
+      - name: Install NPM dependencies
+        run: npm ci
+
+      # TODO: Replace this with proper CLI
+      - name: Generate the redirects
+        run: node src/cli.js
+
+      - name: Expose static assets
+        run: |
+          if [ -d static ]
+          then
+              cp -r static/. out
+          fi
+
+      - name: Deploy
+        uses: JamesIves/github-pages-deploy-action@4.1.1
+        with:
+          branch: gh-pages
+          folder: out
+          clean: true
+          single-commit: true
