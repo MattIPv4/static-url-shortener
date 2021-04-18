@@ -2,12 +2,12 @@ const fs = require('fs');
 const path = require('path');
 
 // Load the template
-const template = fs.readFileSync(path.join(__dirname, 'redirect.template.html'), 'utf8');
+const template = fs.readFileSync(path.join(__dirname, 'templates', 'redirect.html'), 'utf8');
 
 /**
  * Generate an index.html redirect file for the given redirect data
  * @param {string} out The full output directory path for the redirect data
- * @param {Object} data The redirect data to use for this redirect output
+ * @param {RedirectData} data The redirect data to use for this redirect output
  */
 module.exports = (out, data) => {
     // Make a copy of the template and substitute in our redirect target
