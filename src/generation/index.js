@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const deleteDir = require('../utilities/deleteDir');
 const redirect = require('./redirect');
+const notFound = require('./not-found');
 
 /**
  * Perform redirect generation for a given {@link RedirectTree}
@@ -32,11 +33,15 @@ const handleTree = (out, tree) => {
  * Perform redirect generation for a given {@link RedirectTree}
  * @param {string} out The full output directory path for the redirect tree (will be cleaned)
  * @param {RedirectTree} tree The redirect tree to generate redirects for
+ * @return {Promise<void>}
  */
-module.exports = (out, tree) => {
+module.exports = async (out, tree) => {
     // Clean the output directory
     deleteDir(out);
 
     // Start generating recursively
     handleTree(out, tree);
+
+    // Generate the final 404.html file
+    await notFound(out, tree);
 };

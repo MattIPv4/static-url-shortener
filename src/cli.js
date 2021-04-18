@@ -12,7 +12,10 @@ const main = async () => {
     console.log(JSON.stringify(tree, null, 2));
 
     // Perform the generation
-    generation(path.join(__dirname, '..', 'out'), tree);
+    await generation(path.join(__dirname, '..', 'out'), tree);
 };
 
-main().then();
+main().then().catch(err => {
+    console.error(err);
+    process.exit(1);
+});
