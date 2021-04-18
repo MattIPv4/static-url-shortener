@@ -1,7 +1,7 @@
 /**
- * Validate any given raw data input and return the redirect target if valid data
+ * Validate any given raw data input and return the redirect data if valid
  * @param {*} raw The raw data to validate as redirect data
- * @return {Promise<string>}
+ * @return {Promise<RedirectData>}
  */
 module.exports = async raw => {
     // Validate that we have an object in the file
@@ -21,5 +21,9 @@ module.exports = async raw => {
     if (typeof target !== 'string')
         throw new Error('Expected target property function to return a string');
 
-    return target;
+    // Validate that the extended flag is a boolean or not provided
+    if (typeof raw.extended !== 'boolean' && typeof raw.extended !== 'undefined')
+        throw new Error('Expected extended property to be either boolean or not defined');
+
+    return { target, extended: raw.extended === undefined ? true : raw.extended };
 };

@@ -3,8 +3,14 @@ const validate = require('./validate');
 const segments = require('./segments');
 
 /**
+ * @typedef {Object} RedirectData
+ * @property {string} target The redirect target
+ * @property {boolean} extended If this redirect allows the extended routing feature
+ */
+
+/**
  * @typedef {Object} RedirectTree
- * @property {Object} [data] The redirect target data for this node
+ * @property {RedirectData} [data] The redirect data for this node
  * @property {Object.<string, RedirectTree>} [subpaths] The redirect tree nodes after this path segment
  */
 
@@ -18,8 +24,8 @@ const parseFile = async (base, file, tree) => {
     // Load in the file
     const raw = require(file);
 
-    // Validate the raw data and get the target
-    const target = await validate(raw);
+    // Validate the raw data and get the data if valid
+    const data = await validate(raw);
 
     // Get the path segments from the file name
     const pathSegments = segments(base, file);
@@ -42,9 +48,7 @@ const parseFile = async (base, file, tree) => {
         throw new Error(`Redirect data already defined for path /${pathSegments.join('/')}`);
 
     // Insert data into tree (this mutates the passed in tree)
-    node.data = {
-        target,
-    };
+    node.data = data;
 };
 
 /**
