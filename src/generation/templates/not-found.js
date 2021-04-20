@@ -1,7 +1,7 @@
 /* eslint-env browser, node */
 /* global REDIRECT_TREE */
 
-(() => {
+document.addEventListener('DOMContentLoaded', () => {
     // Execute the router with the current path
     const router = require('../router')(window.location.pathname, REDIRECT_TREE);
 
@@ -20,4 +20,4 @@
 
     // Redirect
     window.location = router;
-})();
+});
