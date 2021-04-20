@@ -3,7 +3,7 @@
 
 (() => {
     // Execute the router with the current path
-    const router = require('../router')(window.location.pathname, JSON.parse(REDIRECT_TREE));
+    const router = require('../router')(window.location.pathname, REDIRECT_TREE);
 
     // Handle 404, abort
     if (router === null) {

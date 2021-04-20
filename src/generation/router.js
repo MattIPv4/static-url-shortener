@@ -2,7 +2,7 @@
  * Find a redirect target for a given set of path segment in the redirect tree
  * @param {string[]} segments The path segments to find a matching redirect for
  * @param {RedirectTree} tree The redirect tree to find a matching redirect in
- * @return {null|string}
+ * @return {?string}
  */
 const getTarget = (segments, tree) => {
     // If there are still more segments and the next segment is a valid subpath, explore it
@@ -33,7 +33,7 @@ const getTarget = (segments, tree) => {
  * Find a redirect target for a given path in the redirect tree
  * @param {string} path The path to find a matching redirect for
  * @param {RedirectTree} tree The redirect tree to find a matching redirect in
- * @return {null|string}
+ * @return {?string}
  */
 module.exports = (path, tree) => {
     // Break the path down into segments, dropping leading & trailing slashes
