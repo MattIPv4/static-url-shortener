@@ -5,15 +5,14 @@ const validate = require('../parsing/validate');
 /**
  * Validate files changed locally based on the diff in a GitHub pull request
  * @param {string} token API token that will be used to authenticate with the GitHub API
- * @param {string} owner The owner of the GitHub repository in which the pull request was made
- * @param {string} repo The name of the repository on GitHub where the pull requests was made
+ * @param {string} repository The full name of the repository on GitHub where the pull requests was made
  * @param {number} pullRequest The number for the pull request in the GitHub repository
  * @return {Promise<void>}
  */
-const main = async (token, owner, repo, pullRequest) => {
+const main = async (token, repository, pullRequest) => {
     // Fetch the files in the PR
     // TODO: Handle pagination
-    const resp = await fetch(`https://api.github.com/repos/${owner}/${repo}/pulls/${pullRequest}/files`, {
+    const resp = await fetch(`https://api.github.com/repos/${repository}/pulls/${pullRequest}/files`, {
         headers: {
             Authorization: `token ${token}`,
         },
@@ -55,7 +54,7 @@ const main = async (token, owner, repo, pullRequest) => {
     if (hasError) throw new Error('Not all added and modified data files passed validation');
 };
 
-main(process.env.GITHUB_TOKEN, process.env.OWNER, process.env.REPO, Number(process.env.PULL_REQUEST))
+main(process.env.GITHUB_TOKEN, process.env.REPOSITORY, Number(process.env.PULL_REQUEST))
     .then(() => {
         console.log('All added and modified data files passed validation')
     })

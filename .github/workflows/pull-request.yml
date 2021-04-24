@@ -1,0 +1,39 @@
+name: Validate pull request
+
+on:
+  pull_request:
+
+jobs:
+  validate-pull-request:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Set Node.js version from .nvmrc
+        id: set-node
+        run: echo "::set-output name=node::$(cat .nvmrc)"
+
+      - name: Use Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ steps.set-node.outputs.node }}
+
+      - name: Cache NPM dependencies
+        uses: actions/cache@v2
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: ${{ runner.os }}-node-
+
+      - name: Install NPM dependencies
+        run: npm ci
+
+      # TODO: Replace this with proper CLI
+      - name: Validate changes in PR
+        run: node src/github/pull-request.js
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPOSITORY: ${{ github.event.repository.full_name }}
+          PULL_REQUEST: ${{ github.event.pull_request.number }}
