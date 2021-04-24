@@ -3,6 +3,22 @@ const fetch = require('node-fetch');
 const validate = require('../parsing/validate');
 
 /**
+ * Log a success message to the console
+ * @param {string} msg The success message to log
+ * @param {number} [linesBefore=0] Number of linebreaks to insert before the message
+ * @return {void}
+ */
+const success = (msg, linesBefore = 0) => console.log(`${'\n'.repeat(linesBefore)}✔ ${msg}`);
+
+/**
+ * Log an error message to the console
+ * @param {string} msg The error message to log
+ * @param {number} [linesBefore=1] Number of linebreaks to insert before the message
+ * @return {void}
+ */
+const error = (msg, linesBefore = 1) => console.error(`${'\n'.repeat(linesBefore)}✗ ${msg}`);
+
+/**
  * Validate files changed locally based on the diff in a GitHub pull request
  * @param {string} token API token that will be used to authenticate with the GitHub API
  * @param {string} repository The full name of the repository on GitHub where the pull requests was made
@@ -29,8 +45,8 @@ const main = async (token, repository, pullRequest) => {
     const dataFiles = allFiles.filter(file => (file.status === 'added' || file.status === 'modified')
         && file.filename.startsWith('data/') && file.filename.endsWith('.js'));
 
-    // Track if we encounter an error (so we can exit status 1 at the end)
-    let hasError = false;
+    // Track the results for each file for reporting
+    const results = [];
 
     // Attempt to validate the files, logging errors but not aborting
     for (const file of dataFiles) {
@@ -40,25 +56,38 @@ const main = async (token, repository, pullRequest) => {
 
             // Validate the data (we don't need the parsed target returned)
             await validate(raw);
-        } catch (err) {
-            // Store that there was an error
-            hasError = true;
 
-            // Log the error for the file
-            console.error(`Failed to load redirect data from ${file.filename}`);
-            console.error(err);
+            // No error during validation, store success
+            results.push({ file: file.filename, valid: true, err: null });
+        } catch (err) {
+            // Store the error found during validation
+            results.push({ file: file.filename, valid: false, err });
         }
     }
 
+    // Sort our results by success first
+    results.sort((a, b) => a.valid && b.valid ? 0 : (a.valid ? -1 : 1));
+
+    // Log all the file results
+    for (const result of results) {
+        result.valid
+            ? success(`${result.file} passed validation`)
+            : error(`${result.file} failed validation\n  ${result.err.toString().replace(/\n/g, '\n  ')}`);
+    }
+
     // If we had an error, exit status 1
-    if (hasError) throw new Error('Not all added and modified data files passed validation');
+    if (results.some(result => !result.valid)) {
+        error('Not all added and modified data files passed validation');
+        process.exit(1);
+        return;
+    }
+
+    // We didn't have any errors, success!
+    success('All added and modified data files passed validation', 1);
 };
 
 main(process.env.GITHUB_TOKEN, process.env.REPOSITORY, Number(process.env.PULL_REQUEST))
-    .then(() => {
-        console.log('All added and modified data files passed validation')
-    })
     .catch(err => {
-        console.error(err);
+        error(`An unexpected error occurred during the validation process\n  ${err.toString().replace(/\n/g, '\n  ')}`);
         process.exit(1);
     });
