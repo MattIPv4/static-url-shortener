@@ -38,4 +38,3 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPOSITORY: ${{ github.event.repository.full_name }}
           ISSUE: ${{ github.event.issue.number }}
-          SHA: ${{ github.sha }}
