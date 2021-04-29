@@ -3,6 +3,15 @@ const fetch = require('node-fetch');
 const stringifyObject = require('stringify-object');
 const { success, error } = require('../utilities/logging');
 
+/**
+ * Make a request to the GitHub API
+ * @param {string} token Token used to authenticate the request with GitHub
+ * @param {string} path Endpoint path for the request, without a leading slash
+ * @param {string} [method='GET'] HTTP request method for the request, defaulting to GET
+ * @param {Object.<string, string>} [headers={}] Any headers for the HTTP request
+ * @param {string} [body] Any stringified body payload to include in the request
+ * @return {Promise<*>}
+ */
 const githubAPI = async (token, path, method = 'GET', headers = {}, body = undefined) => {
     const resp = await fetch(`https://api.github.com/${path}`, {
         method,
@@ -20,10 +29,31 @@ const githubAPI = async (token, path, method = 'GET', headers = {}, body = undef
     return await resp.json();
 };
 
+/**
+ * Fetch an issue from GitHub
+ * @param {string} token Token used to authenticate the request with GitHub
+ * @param {string} repository Full name of the repository, owner & repo name
+ * @param {number} issue Issue number to fetch
+ * @return {Promise<*>}
+ */
 const getIssue = async (token, repository, issue) => await githubAPI(token, `repos/${repository}/issues/${issue}`);
 
+/**
+ * Fetch a git branch from GitHub
+ * @param {string} token Token used to authenticate the request with GitHub
+ * @param {string} repository Full name of the repository, owner & repo name
+ * @param {string} branch Branch name to fetch
+ * @return {Promise<*>}
+ */
 const getBranch = async (token, repository, branch) => await githubAPI(token, `repos/${repository}/branches/${branch}`);
 
+/**
+ * Check if a git branch exists in a repository on GitHub
+ * @param {string} token Token used to authenticate the request with GitHub
+ * @param {string} repository Full name of the repository, owner & repo name
+ * @param {string} branch Branch name to check for
+ * @return {Promise<boolean>}
+ */
 const checkBranchExists = async (token, repository, branch) => {
     try {
         // Attempt to get the branch and return true if it was found
@@ -38,8 +68,20 @@ const checkBranchExists = async (token, repository, branch) => {
     }
 };
 
+/**
+ * Fetch a repository from GitHub
+ * @param {string} token Token used to authenticate the request with GitHub
+ * @param {string} repository Full name of the repository, owner & repo name
+ * @return {Promise<*>}
+ */
 const getRepository = async (token, repository) => await githubAPI(token, `repos/${repository}`);
 
+/**
+ * Fetch the default branch name for a repository from GitHub
+ * @param {string} token Token used to authenticate the request with GitHub
+ * @param {string} repository Full name of the repository, owner & repo name
+ * @return {Promise<*>}
+ */
 const getDefaultBranchName = async (token, repository) => {
     // Get the JSON data
     const data = await getRepository(token, repository);
@@ -48,6 +90,14 @@ const getDefaultBranchName = async (token, repository) => {
     return data.default_branch;
 };
 
+/**
+ * Create a new git branch for a repository on GitHub
+ * @param {string} token Token used to authenticate the request with GitHub
+ * @param {string} repository Full name of the repository, owner & repo name
+ * @param {string} branch Name of the new branch to create
+ * @param {string} sha SHA1 commit hash to base the branch on
+ * @return {Promise<*>}
+ */
 const createBranch = async (token, repository, branch, sha) => await githubAPI(
     token,
     `repos/${repository}/git/refs`,
@@ -61,9 +111,25 @@ const createBranch = async (token, repository, branch, sha) => await githubAPI(
     }),
 );
 
+/**
+ * Fetch a file from a branch in a repository on GitHub
+ * @param {string} token Token used to authenticate the request with GitHub
+ * @param {string} repository Full name of the repository, owner & repo name
+ * @param {string} file Name (including path) of the file to fetch
+ * @param {string} branch Branch name to fetch the file from
+ * @return {Promise<*>}
+ */
 const getFile = async (token, repository, file, branch) =>
     await githubAPI(token, `repos/${repository}/contents/${file}?ref=${encodeURIComponent(branch)}`);
 
+/**
+ * Check if a file exists in a branch in a repository on GitHub
+ * @param {string} token Token used to authenticate the request with GitHub
+ * @param {string} repository Full name of the repository, owner & repo name
+ * @param {string} file Name (including path) of the file to check for
+ * @param {string} branch Branch name to check im
+ * @return {Promise<boolean>}
+ */
 const checkFileExists = async (token, repository, file, branch) => {
     try {
         // Attempt to get the file and return true if it was found
@@ -78,6 +144,16 @@ const checkFileExists = async (token, repository, file, branch) => {
     }
 };
 
+/**
+ * Create and commit a new file to a branch in a repository on GitHub
+ * @param {string} token Token used to authenticate the request with GitHub
+ * @param {string} repository Full name of the repository, owner & repo name
+ * @param {string} branch Branch name to create the file in
+ * @param {string} file Name (including path) of the file to create
+ * @param {string} content Contents to include in the created file
+ * @param {string} message Commit message to use for creating the file
+ * @return {Promise<*>}
+ */
 const createFile = async (token, repository, branch, file, content, message) => await githubAPI(
     token,
     `repos/${repository}/contents/${file}`,
@@ -93,7 +169,17 @@ const createFile = async (token, repository, branch, file, content, message) => 
     }),
 );
 
-const createPullRequest = async (token, repository, title, head, base, body) => await githubAPI(
+/**
+ * Create a pull request for a head branch against a base branch in a repository on GitHub
+ * @param {string} token Token used to authenticate the request with GitHub
+ * @param {string} repository Full name of the repository, owner & repo name
+ * @param {string} head Branch name for the head branch (the branch to be merged)
+ * @param {string} base Branch name for the base branch (the branch being merged into)
+ * @param {string} title Title for the pull request
+ * @param {string} body Body contents for the pull request
+ * @return {Promise<*>}
+ */
+const createPullRequest = async (token, repository, head, base, title, body) => await githubAPI(
     token,
     `repos/${repository}/pulls`,
     'POST',
@@ -101,13 +187,40 @@ const createPullRequest = async (token, repository, title, head, base, body) => 
         'Content-type': 'application/json',
     },
     JSON.stringify({
-        title,
         head,
         base,
+        title,
         body,
     }),
 );
 
+/**
+ * Create a new comment on an issue in a repository on GitHub
+ * @param {string} token Token used to authenticate the request with GitHub
+ * @param {string} repository Full name of the repository, owner & repo name
+ * @param {number} issue Issue number to create the comment on
+ * @param {string} body Body of the comment to create
+ * @return {Promise<*>}
+ */
+const createIssueComment = async (token, repository, issue, body) => await githubAPI(
+    token,
+    `repos/${repository}/issues/${issue}/comments`,
+    'POST',
+    {
+        'Content-type': 'application/json',
+    },
+    JSON.stringify({
+        body,
+    }),
+);
+
+/**
+ * Process an issue on GitHub and determine if it is valid short URL request, creating a pull request if it is
+ * @param {string} token API token that will be used to authenticate with the GitHub API
+ * @param {string} repository The full name of the repository on GitHub where the issue was created
+ * @param {number} issue The number for the issue in the GitHub repository
+ * @return {Promise<void>}
+ */
 const main = async (token, repository, issue) => {
     // Fetch the full issue information
     const data = await getIssue(token, repository, issue);
@@ -119,7 +232,7 @@ const main = async (token, repository, issue) => {
     }
 
     // Only process issues from users with write permissions
-    if (!['OWNER', 'MEMBER', 'COLLABORATOR'].includes(data.author_association)) {
+    if (![ 'OWNER', 'MEMBER', 'COLLABORATOR' ].includes(data.author_association)) {
         error('Issue author does not have write permissions.');
         return process.exit(0);
     }
@@ -157,9 +270,6 @@ const main = async (token, repository, issue) => {
         return process.exit(0);
     }
 
-    console.log(data);
-    console.log(body);
-
     // Check if a branch already exists for this request
     const cleanPath = bodyPath.replace(/^\//, '').replace(/\/$/, '');
     const branchName = `request/${cleanPath}`;
@@ -170,7 +280,7 @@ const main = async (token, repository, issue) => {
 
     // Get the default branch for the repository
     const defaultBranch = await getDefaultBranchName(token, repository);
-    const defaultBranchData = await getBranch(token, repository, defaultBranch)
+    const defaultBranchData = await getBranch(token, repository, defaultBranch);
 
     // Create the new branch
     await createBranch(token, repository, branchName, defaultBranchData.commit.sha);
@@ -187,8 +297,16 @@ const main = async (token, repository, issue) => {
         `Add short URL '/${cleanPath}' with target '${bodyMatch[2].trim()}'`);
 
     // Create the pull request
-    await createPullRequest(token, repository, `Add short URL '/${cleanPath}'`, branchName, defaultBranch,
+    const pullRequest = await createPullRequest(token, repository, branchName, defaultBranch,
+        `Add short URL '/${cleanPath}'`,
         `Add short URL '/${cleanPath}' with target '${bodyMatch[2].trim()}'.\nThis resolves issue request #${issue}.`);
+
+    // Leave a comment on the issue
+    await createIssueComment(token, repository, issue,
+        `✅ A pull request has been created for this short URL request: #${pullRequest.number}`);
+
+    // Done!
+    success(`Issue processed successfully and pull request created: ${pullRequest.html_url}`);
 };
 
 main(process.env.GITHUB_TOKEN, process.env.REPOSITORY, Number(process.env.ISSUE))
