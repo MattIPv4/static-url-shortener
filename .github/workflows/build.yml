@@ -33,16 +33,8 @@ jobs:
       - name: Install NPM dependencies
         run: npm ci
 
-      # TODO: Replace this with proper CLI
       - name: Generate the redirects
-        run: node src/cli.js
-
-      - name: Expose static assets
-        run: |
-          if [ -d static ]
-          then
-              cp -r static/. out
-          fi
+        run: node src/cli.js generate --data=data --out=out --static=static
 
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@4.1.1

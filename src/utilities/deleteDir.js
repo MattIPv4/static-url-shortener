@@ -9,7 +9,7 @@ const path = require('path');
 const deleteDir = dir => {
     if (fs.existsSync(dir)) {
         fs.readdirSync(dir, { withFileTypes: true })
-            .flatMap(file => file.isDirectory()
+            .forEach(file => file.isDirectory()
                 ? deleteDir(path.join(dir, file.name))
                 : fs.unlinkSync(path.join(dir, file.name)));
         fs.rmdirSync(dir);

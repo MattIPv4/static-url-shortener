@@ -28,6 +28,7 @@
         "node-fetch": "^2.6.1",
         "react-dev-utils": "^11.0.4",
         "stringify-object": "^3.3.0",
-        "webpack": "^5.33.2"
+        "webpack": "^5.33.2",
+        "yargs": "^16.2.0"
     }
 }
