@@ -30,10 +30,9 @@ jobs:
       - name: Install NPM dependencies
         run: npm ci
 
-      # TODO: Replace this with proper CLI
       - name: Validate changes in PR
-        run: node src/github/pull-request.js
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          REPOSITORY: ${{ github.event.repository.full_name }}
-          PULL_REQUEST: ${{ github.event.pull_request.number }}
+        run: >-
+          node src/cli.js github pull-request
+          --token=${{ secrets.GITHUB_TOKEN }}
+          --repository=${{ github.event.repository.full_name }}
+          --number=${{ github.event.pull_request.number }}
