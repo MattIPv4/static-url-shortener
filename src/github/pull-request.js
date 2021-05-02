@@ -10,7 +10,7 @@ const { success, error } = require('../utilities/logging');
  * @param {number} pullRequest The number for the pull request in the GitHub repository
  * @return {Promise<void>}
  */
-const main = async (token, repository, pullRequest) => {
+module.exports = async (token, repository, pullRequest) => {
     // Fetch the files in the PR
     // TODO: Handle pagination
     const resp = await fetch(`https://api.github.com/repos/${repository}/pulls/${pullRequest}/files`, {
@@ -70,9 +70,3 @@ const main = async (token, repository, pullRequest) => {
     // We didn't have any errors, success!
     success('All added and modified data files passed validation', 1);
 };
-
-main(process.env.GITHUB_TOKEN, process.env.REPOSITORY, Number(process.env.PULL_REQUEST))
-    .catch(err => {
-        error(`An unexpected error occurred during the validation process\n  ${err.toString().replace(/\n/g, '\n  ')}`);
-        process.exit(1);
-    });
