@@ -75,7 +75,28 @@ const cli = yargs
                         type: 'number'
                     })
                     .demandOption(['t', 'r', 'n']),
-                argv => require('./github/pull-request')(argv.token, argv.repository, argv.number)),
+                argv => require('./github/pull-request')(argv.token, argv.repository, argv.number))
+
+            // Define the issue request processing subcommand
+            .command('issue-request', 'Process a redirect request issue on GitHub',
+                subCmd => subCmd
+                    .option('t', {
+                        alias: 'token',
+                        describe: 'Access token for authenticating with GitHub\'s API',
+                        type: 'string'
+                    })
+                    .option('r', {
+                        alias: 'repository',
+                        describe: 'Full repository name on GitHub, owner & name',
+                        type: 'string'
+                    })
+                    .option('n', {
+                        alias: 'number',
+                        describe: 'Number of the redirect request issue to process',
+                        type: 'number'
+                    })
+                    .demandOption(['t', 'r', 'n']),
+                argv => require('./github/issue-request')(argv.token, argv.repository, argv.number)),
         () => {})
 
     // Provide help option for everything

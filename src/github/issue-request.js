@@ -221,7 +221,7 @@ const createIssueComment = async (token, repository, issue, body) => await githu
  * @param {number} issue The number for the issue in the GitHub repository
  * @return {Promise<void>}
  */
-const main = async (token, repository, issue) => {
+module.exports = async (token, repository, issue) => {
     // Fetch the full issue information
     const data = await getIssue(token, repository, issue);
 
@@ -308,9 +308,3 @@ const main = async (token, repository, issue) => {
     // Done!
     success(`Issue processed successfully and pull request created: ${pullRequest.html_url}`);
 };
-
-main(process.env.GITHUB_TOKEN, process.env.REPOSITORY, Number(process.env.ISSUE))
-    .catch(err => {
-        error(`An unexpected error occurred during the issue processing\n  ${err.toString().replace(/\n/g, '\n  ')}`);
-        process.exit(1);
-    });

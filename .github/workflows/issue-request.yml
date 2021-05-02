@@ -31,10 +31,9 @@ jobs:
       - name: Install NPM dependencies
         run: npm ci
 
-      # TODO: Replace this with proper CLI
       - name: Process the issue
-        run: node src/github/issue-request.js
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          REPOSITORY: ${{ github.event.repository.full_name }}
-          ISSUE: ${{ github.event.issue.number }}
+        run: >-
+          node src/cli.js github issue-request
+          --token=${{ secrets.GITHUB_TOKEN }}
+          --repository=${{ github.event.repository.full_name }}
+          --number=${{ github.event.issue.number }}
