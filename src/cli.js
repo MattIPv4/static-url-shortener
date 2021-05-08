@@ -26,10 +26,21 @@ const generate = async (dataDir, outDir, staticDir) => {
     if (staticDir) await copyAllFiles(path.resolve(process.cwd(), staticDir), path.resolve(process.cwd(), outDir));
 };
 
+/**
+ * Fetch all available exporters for the CLI
+ * @return {string[]}
+ */
 const getExporters = () => fs.readdirSync(path.join(__dirname, 'exporters'), { withFileTypes: true })
-        .filter(file => !file.isDirectory() && file.name.endsWith('.js'))
-        .map(file => file.name.replace(/\.js$/, ''));
+    .filter(file => !file.isDirectory() && file.name.endsWith('.js'))
+    .map(file => file.name.replace(/\.js$/, ''));
 
+/**
+ * Export redirect data from a source data directory using a specified exporter
+ * @param {string} exporterName Name of the exporter function to use
+ * @param {string} filename Full path and filename to export the data to
+ * @param {string} dataDir Location of data directory from the current working directory
+ * @return {Promise<void>}
+ */
 const exportData = async (exporterName, filename, dataDir) => {
     // Load in our data and get a redirect tree
     const tree = await parsing(path.resolve(process.cwd(), dataDir));
@@ -47,30 +58,31 @@ const exportData = async (exporterName, filename, dataDir) => {
 };
 
 // Create our CLI with yargs
+// eslint-disable-next-line no-unused-vars
 const cli = yargs
     .scriptName('static-url-shortener')
 
     // Define the main command for generating the redirects
     .command('generate', 'Generate static redirect HTML files',
-            cmd => cmd
-                .option('d', {
-                    alias: 'data',
-                    default: 'data',
-                    describe: 'Source directory for redirect data',
-                    type: 'string'
-                })
-                .option('o', {
-                    alias: 'out',
-                    default: 'out',
-                    describe: 'Output directory for HTML files',
-                    type: 'string'
-                })
-                .option('s', {
-                    alias: 'static',
-                    describe: 'Optional, source directory for static files',
-                    type: 'string'
-                }),
-            argv => generate(argv.data, argv.out, argv.static))
+        cmd => cmd
+            .option('d', {
+                alias: 'data',
+                default: 'data',
+                describe: 'Source directory for redirect data',
+                type: 'string',
+            })
+            .option('o', {
+                alias: 'out',
+                default: 'out',
+                describe: 'Output directory for HTML files',
+                type: 'string',
+            })
+            .option('s', {
+                alias: 'static',
+                describe: 'Optional, source directory for static files',
+                type: 'string',
+            }),
+        argv => generate(argv.data, argv.out, argv.static))
 
     // Define the GitHub Actions commands
     .command('github', 'Commands for integration with GitHub Actions',
@@ -84,19 +96,19 @@ const cli = yargs
                     .option('t', {
                         alias: 'token',
                         describe: 'Access token for authenticating with GitHub\'s API',
-                        type: 'string'
+                        type: 'string',
                     })
                     .option('r', {
                         alias: 'repository',
                         describe: 'Full repository name on GitHub, owner & name',
-                        type: 'string'
+                        type: 'string',
                     })
                     .option('n', {
                         alias: 'number',
                         describe: 'Number of the pull request to validate',
-                        type: 'number'
+                        type: 'number',
                     })
-                    .demandOption(['t', 'r', 'n']),
+                    .demandOption([ 't', 'r', 'n' ]),
                 argv => require('./github/pull-request')(argv.token, argv.repository, argv.number))
 
             // Define the issue request processing subcommand
@@ -105,47 +117,47 @@ const cli = yargs
                     .option('t', {
                         alias: 'token',
                         describe: 'Access token for authenticating with GitHub\'s API',
-                        type: 'string'
+                        type: 'string',
                     })
                     .option('r', {
                         alias: 'repository',
                         describe: 'Full repository name on GitHub, owner & name',
-                        type: 'string'
+                        type: 'string',
                     })
                     .option('n', {
                         alias: 'number',
                         describe: 'Number of the redirect request issue to process',
-                        type: 'number'
+                        type: 'number',
                     })
-                    .demandOption(['t', 'r', 'n']),
+                    .demandOption([ 't', 'r', 'n' ]),
                 argv => require('./github/issue-request')(argv.token, argv.repository, argv.number)),
         () => {})
 
     // Define the command for exporting
     .command('export', 'Export the redirect data to alternative formats',
-            cmd => cmd
-                .option('t', {
-                    alias: 'type',
-                    describe: 'Data format type to export to',
-                    type: 'string',
-                    choices: getExporters(),
-                })
-                .option('o', {
-                    alias: 'out',
-                    describe: 'Output filename for the exported data',
-                    type: 'string',
-                })
-                .option('d', {
-                    alias: 'data',
-                    default: 'data',
-                    describe: 'Source directory for redirect data',
-                    type: 'string'
-                })
-                .demandOption(['t', 'o']),
-            argv => exportData(argv.type, argv.out, argv.data))
+        cmd => cmd
+            .option('t', {
+                alias: 'type',
+                describe: 'Data format type to export to',
+                type: 'string',
+                choices: getExporters(),
+            })
+            .option('o', {
+                alias: 'out',
+                describe: 'Output filename for the exported data',
+                type: 'string',
+            })
+            .option('d', {
+                alias: 'data',
+                default: 'data',
+                describe: 'Source directory for redirect data',
+                type: 'string',
+            })
+            .demandOption([ 't', 'o' ]),
+        argv => exportData(argv.type, argv.out, argv.data))
 
     // Provide help option for everything
     .help()
 
     // Run!
-    .argv
+    .argv;

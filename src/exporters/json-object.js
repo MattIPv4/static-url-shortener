@@ -1,7 +1,17 @@
 const flattenTree = require('../utilities/flattenTree');
 
+/**
+ * Convert a redirect tree to a JSON object
+ * @param {RedirectTree} tree The redirect tree to convert to a JSON object
+ * @return {string}
+ */
 module.exports = tree => {
-    // Define the transform that will be applied to each node's data
+    /**
+     * Transform each data node, returning the node data alongside the path
+     * @param {string} currentPath The short URL path for this node
+     * @param {RedirectData} data The redirect data for this node
+     * @return {{data: RedirectData, path: string}}
+     */
     const transform = (currentPath, data) => ({
         path: currentPath,
         data,
