@@ -1,8 +1,8 @@
 /**
  * Ensure that a given property in an object resolves to a string.
  * Supports a raw string, a function that returns a string, or a function that returns a Promise for a string.
- * @param {Object} object
- * @param {string} property
+ * @param {Object} object The object to find the property in
+ * @param {string} property The property name to resolve the value of to a string
  * @return {Promise<string>}
  */
 const resolveString = async (object, property) => {

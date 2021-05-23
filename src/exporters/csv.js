@@ -23,11 +23,16 @@ module.exports = tree => {
         currentPath,
         data.target,
         data.extended,
+        data.title,
+        data.description,
+        data.icon,
+        data.banner,
+        data.color,
     ].map(val => csvValue(val)).join(',');
 
     // Get the flattened tree with a string CSV row for each redirect
     const data = flattenTree(tree, transform);
 
     // Add the header row and return
-    return [ 'Path,Target,Extended' ].concat(data).join('\n');
+    return [ 'Path,Target,Extended,Title,Description,Icon,Banner,Color' ].concat(data).join('\n');
 };
