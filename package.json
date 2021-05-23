@@ -25,8 +25,11 @@
     },
     "dependencies": {
         "html-webpack-plugin": "^5.3.1",
+        "htmlnano": "^1.0.0",
         "memfs": "^3.2.2",
         "node-fetch": "^2.6.1",
+        "posthtml": "^0.15.2",
+        "posthtml-expressions": "^1.7.1",
         "react-dev-utils": "^11.0.4",
         "sqlstring": "^2.3.2",
         "stringify-object": "^3.3.0",

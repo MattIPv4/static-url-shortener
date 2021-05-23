@@ -2,12 +2,41 @@
 <html lang="en-US">
 <head>
 <meta charset="utf-8">
-<title>Redirecting...</title>
+<title>{{ title || 'Redirecting...' }}</title>
 <meta name="referrer" content="no-referrer">
 <link rel="canonical" href="{{ target }}">
+<meta name="canonicalURL" content="{{ target }}">
 <script>window.location = "{{ target }}"</script>
 <meta http-equiv="refresh" content="0; url={{ target }}">
 <meta name="robots" content="noindex">
+<meta prefix="og: http://ogp.me/ns#" property="og:type" content="website">
+<meta prefix="og: http://ogp.me/ns#" property="og:url" content="{{ target }}">
+<meta name="twitter:url" content="{{ target }}">
+<if condition="title !== undefined">
+    <meta name="title" content="{{ title }}">
+    <meta name="twitter:title" content="{{ title }}">
+    <meta prefix="og: http://ogp.me/ns#" property="og:title" content="{{ title }}">
+    <meta prefix="og: http://ogp.me/ns#" property="og:site_name" content="{{ title }}">
+</if>
+<if condition="description !== undefined">
+    <meta name="description" content="{{ description }}">
+    <meta name="twitter:description" content="{{ description }}">
+    <meta prefix="og: http://ogp.me/ns#" property="og:description" content="{{ description }}">
+</if>
+<if condition="icon !== undefined">
+    <link rel="icon" href="{{ icon }}">
+    <link rel="shortcut-icon" href="{{ icon }}">
+    <link rel="apple-touch-icon" href="{{ icon }}">
+</if>
+<if condition="banner !== undefined || icon !== undefined">
+    <meta name="twitter:image" content="{{ banner === undefined ? icon : banner }}">
+    <meta prefix="og: http://ogp.me/ns#" property="og:image" content="{{ banner === undefined ? icon : banner }}">
+    <meta name="twitter:card" content="{{ banner === undefined ? 'summary' : 'summary_large_image' }}">
+    <link rel="image_src" content="{{ banner === undefined ? icon : banner }}">
+</if>
+<if condition="color !== undefined">
+    <meta name="theme-color" content="{{ color }}">
+</if>
 </head>
 <body>
 <h1>Redirecting...</h1>

@@ -8,8 +8,9 @@ const notFound = require('./not-found');
  * Perform redirect generation for a given {@link RedirectTree}
  * @param {string} out The base full output directory path for the redirect tree
  * @param {RedirectTree} tree The redirect tree structure to generate redirects for
+ * @return {Promise<void>}
  */
-const handleTree = (out, tree) => {
+const handleTree = async (out, tree) => {
     // If no data and no subpaths, stop
     if (!Object.prototype.hasOwnProperty.call(tree, 'data') && !Object.prototype.hasOwnProperty.call(tree, 'subpaths'))
         return;
@@ -19,13 +20,13 @@ const handleTree = (out, tree) => {
 
     // If we have data, output a redirect file
     if (Object.prototype.hasOwnProperty.call(tree, 'data'))
-        redirect(out, tree.data);
+        await redirect(out, tree.data);
 
     // If we have subpaths, recurse over each subpath
     if (Object.prototype.hasOwnProperty.call(tree, 'subpaths'))
         for (const subpath in tree.subpaths) {
             if (!Object.prototype.hasOwnProperty.call(tree.subpaths, subpath)) continue;
-            handleTree(path.join(out, subpath), tree.subpaths[subpath]);
+            await handleTree(path.join(out, subpath), tree.subpaths[subpath]);
         }
 };
 
@@ -40,7 +41,7 @@ module.exports = async (out, tree) => {
     deleteDir(out);
 
     // Start generating recursively
-    handleTree(out, tree);
+    await handleTree(out, tree);
 
     // Generate the final 404.html file
     await notFound(out, tree);
