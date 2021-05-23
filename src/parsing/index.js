@@ -6,6 +6,11 @@ const segments = require('./segments');
  * @typedef {Object} RedirectData
  * @property {string} target The redirect target
  * @property {boolean} extended If this redirect allows the extended routing feature
+ * @property {string} [title] Title to show in short URL link unfurling
+ * @property {string} [description] Description to show in short URL link unfurling
+ * @property {string} [icon] Icon to show in browser and short URL link unfurling
+ * @property {string} [banner] Banner to show in short URL link unfurling (replaces icon)
+ * @property {string} [color] Color to use for short URL link unfurling
  */
 
 /**
