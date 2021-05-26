@@ -1,5 +1,5 @@
 /* eslint-env browser, node */
-/* global REDIRECT_TREE */
+/* global REDIRECT_TREE, REDIRECT_TEMPLATE */
 
 const router = require('../../generation/router');
 
@@ -13,13 +13,21 @@ const handleRequest = request => {
     const url = new URL(request.url);
 
     // Attempt to find a target from the redirect tree
-    const target = router(url.pathname, REDIRECT_TREE);
+    const target = router(url.pathname, REDIRECT_TREE, true);
 
     // If no target, pass through
     if (target === null) return fetch(request);
 
+    // Generate the HTML from template
+    const body = REDIRECT_TEMPLATE(target.data);
+
     // Return the redirect to the target
-    return Response.redirect(target, 302);
+    return new Response(body, {
+        status: 302,
+        headers: {
+            Location: target.target,
+        },
+    });
 };
 
 // Bind the listener for requests

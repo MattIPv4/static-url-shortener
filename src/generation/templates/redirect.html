@@ -2,44 +2,44 @@
 <html lang="en-US">
 <head>
 <meta charset="utf-8">
-<title>{{ title || 'Redirecting...' }}</title>
+<title>{{= data.title || 'Redirecting...' }}</title>
 <meta name="referrer" content="no-referrer">
-<link rel="canonical" href="{{ target }}">
-<meta name="canonicalURL" content="{{ target }}">
-<script>window.location = "{{ target }}"</script>
-<meta http-equiv="refresh" content="0; url={{ target }}">
+<link rel="canonical" href="{{= data.target }}">
+<meta name="canonicalURL" content="{{= data.target }}">
+<script>window.location = "{{= data.target }}"</script>
+<meta http-equiv="refresh" content="0; url={{= data.target }}">
 <meta name="robots" content="noindex">
 <meta prefix="og: http://ogp.me/ns#" property="og:type" content="website">
-<meta prefix="og: http://ogp.me/ns#" property="og:url" content="{{ target }}">
-<meta name="twitter:url" content="{{ target }}">
-<if condition="title !== undefined">
-    <meta name="title" content="{{ title }}">
-    <meta name="twitter:title" content="{{ title }}">
-    <meta prefix="og: http://ogp.me/ns#" property="og:title" content="{{ title }}">
-    <meta prefix="og: http://ogp.me/ns#" property="og:site_name" content="{{ title }}">
-</if>
-<if condition="description !== undefined">
-    <meta name="description" content="{{ description }}">
-    <meta name="twitter:description" content="{{ description }}">
-    <meta prefix="og: http://ogp.me/ns#" property="og:description" content="{{ description }}">
-</if>
-<if condition="icon !== undefined">
-    <link rel="icon" href="{{ icon }}">
-    <link rel="shortcut-icon" href="{{ icon }}">
-    <link rel="apple-touch-icon" href="{{ icon }}">
-</if>
-<if condition="banner !== undefined || icon !== undefined">
-    <meta name="twitter:image" content="{{ banner === undefined ? icon : banner }}">
-    <meta prefix="og: http://ogp.me/ns#" property="og:image" content="{{ banner === undefined ? icon : banner }}">
-    <meta name="twitter:card" content="{{ banner === undefined ? 'summary' : 'summary_large_image' }}">
-    <link rel="image_src" content="{{ banner === undefined ? icon : banner }}">
-</if>
-<if condition="color !== undefined">
-    <meta name="theme-color" content="{{ color }}">
-</if>
+<meta prefix="og: http://ogp.me/ns#" property="og:url" content="{{= data.target }}">
+<meta name="twitter:url" content="{{= data.target }}">
+{{? data.title !== undefined }}
+    <meta name="title" content="{{= data.title }}">
+    <meta name="twitter:title" content="{{= data.title }}">
+    <meta prefix="og: http://ogp.me/ns#" property="og:title" content="{{= data.title }}">
+    <meta prefix="og: http://ogp.me/ns#" property="og:site_name" content="{{= data.title }}">
+{{?}}
+{{? data.description !== undefined }}
+    <meta name="description" content="{{= data.description }}">
+    <meta name="twitter:description" content="{{= data.description }}">
+    <meta prefix="og: http://ogp.me/ns#" property="og:description" content="{{= data.description }}">
+{{?}}
+{{? data.icon !== undefined }}
+    <link rel="icon" href="{{= data.icon }}">
+    <link rel="shortcut-icon" href="{{= data.icon }}">
+    <link rel="apple-touch-icon" href="{{= data.icon }}">
+{{?}}
+{{? data.banner !== undefined || data.icon !== undefined }}
+    <meta name="twitter:image" content="{{= data.banner === undefined ? data.icon : data.banner }}">
+    <meta prefix="og: http://ogp.me/ns#" property="og:image" content="{{= data.banner === undefined ? data.icon : data.banner }}">
+    <meta name="twitter:card" content="{{= data.banner === undefined ? 'summary' : 'summary_large_image' }}">
+    <link rel="image_src" content="{{= data.banner === undefined ? data.icon : data.banner }}">
+{{?}}
+{{? data.color !== undefined }}
+    <meta name="theme-color" content="{{= data.color }}">
+{{?}}
 </head>
 <body>
 <h1>Redirecting...</h1>
-<a href="{{ target }}" rel="noreferrer">Click here if you are not redirected.</a>
+<a href="{{= data.target }}" rel="noreferrer">Click here if you are not redirected.</a>
 </body>
 </html>

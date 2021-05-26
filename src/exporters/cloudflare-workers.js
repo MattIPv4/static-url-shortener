@@ -1,6 +1,7 @@
 const path = require('path');
 const webpack = require('webpack');
 const { createFsFromVolume, Volume } = require('memfs');
+const redirect = require('../generation/redirect');
 
 /**
  * Convert a redirect tree to a Cloudflare Workers script
@@ -20,9 +21,10 @@ module.exports = tree => new Promise((resolve, reject) => {
             new webpack.optimize.LimitChunkCountPlugin({
                 maxChunks: 1,
             }),
-            // Pass in the redirect tree for the router
+            // Pass in the redirect tree and template for the router
             new webpack.DefinePlugin({
                 REDIRECT_TREE: JSON.stringify(tree),
+                REDIRECT_TEMPLATE: redirect.load(),
             }),
         ],
     });
