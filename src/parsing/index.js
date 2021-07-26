@@ -1,11 +1,13 @@
 const getAllFiles = require('../utilities/getAllFiles');
 const validate = require('./validate');
 const segments = require('./segments');
+const metadata = require('./metadata');
 
 /**
  * @typedef {Object} RedirectData
  * @property {string} target The redirect target
- * @property {boolean} extended If this redirect allows the extended routing feature
+ * @property {boolean} [extended=true] If this redirect allows the extended routing feature
+ * @property {boolean} [scrape=false] If this redirect should scrape metadata from the target
  * @property {string} [title] Title to show in short URL link unfurling
  * @property {string} [description] Description to show in short URL link unfurling
  * @property {string} [icon] Icon to show in browser and short URL link unfurling
@@ -30,7 +32,12 @@ const parseFile = async (base, file, tree) => {
     const raw = require(file);
 
     // Validate the raw data and get the data if valid
-    const data = await validate(raw);
+    const validated = await validate(raw);
+
+    // Scrape metadata if needed
+    const data = validated.scrape
+        ? await metadata(file, validated)
+        : validated;
 
     // Get the path segments from the file name
     const pathSegments = segments(base, file);

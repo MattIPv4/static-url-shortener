@@ -33,6 +33,7 @@ module.exports = async raw => {
     const data = {
         target: raw.target,
         extended: raw.extended,
+        scrape: raw.scrape,
         title: raw.title,
         description: raw.description,
         icon: raw.icon,
@@ -51,8 +52,15 @@ module.exports = async raw => {
     if (typeof data.extended !== 'boolean' && typeof data.extended !== 'undefined')
         throw new Error('Expected extended property to be either boolean or not defined');
 
-    // Ensure extended is a boolean
+    // Ensure extended is a boolean (default true)
     data.extended = data.extended === undefined ? true : data.extended;
+
+    // Validate that the scrape flag is a boolean or not provided
+    if (typeof data.scrape !== 'boolean' && typeof data.scrape !== 'undefined')
+        throw new Error('Expected scrape property to be either boolean or not defined');
+
+    // Ensure scrape is a boolean (default false)
+    data.scrape = data.scrape === undefined ? false : data.scrape;
 
     // Ensure that title is a string, if provided
     if (typeof data.title !== 'undefined')
