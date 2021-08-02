@@ -52,13 +52,14 @@ module.exports = async (file, data) => {
         resources: new ResourceLoader({ userAgent }),
     });
 
-    // Allow the DOM to load for five seconds
-    await new Promise(resolve => setTimeout(resolve, 5000));
+    // Allow the DOM to load for one second
+    await new Promise(resolve => setTimeout(resolve, 1000));
 
     // Get standard metadata items
     const scraped = {
         // Color
         themeColor: getElementProp(window.document, 'meta[name="theme-color"]', 'content'),
+        msTileColor: getElementProp(window.document, 'meta[name="msapplication-TileColor"]', 'content'),
 
         // Title
         opengraphTitle: getElementProp(window.document, 'meta[property="og:title"]', 'content'),
@@ -72,32 +73,55 @@ module.exports = async (file, data) => {
         metaDescription: getElementProp(window.document, 'meta[name="description"]', 'content'),
 
         // Icon
-        shortcutIcon: getElementProp(window.document, 'link[rel="shortcut-icon"]', 'href'),
+        shortcutIcon: getElementProp(window.document, 'link[rel="shortcut icon"]', 'href'),
+        shortcutIcon2: getElementProp(window.document, 'link[rel="shortcut-icon"]', 'href'),
         icon: getElementProp(window.document, 'link[rel="icon"]', 'href'),
         appleTouchIcon: getElementProp(window.document, 'link[rel="apple-touch-icon"]', 'href'),
+        msTileImage: getElementProp(window.document, 'meta[name="msapplication-TileImage"]', 'content'),
 
         // Image
         opengraphImage: getElementProp(window.document, 'meta[property="og:image"]', 'content'),
         twitterImage: getElementProp(window.document, 'meta[name="twitter:image"]', 'content'),
         imageSrc: getElementProp(window.document, 'link[rel="image_src"]', 'href'),
-
-        // Twitter card type (to better guess icon vs. banner)
-        twitterCard: getElementProp(window.document, 'meta[name="twitter:card"]', 'content'),
     };
 
-    // Determine the title
-    // const title = scraped.opengraphTitle
-    //     || scraped.twitterTitle
-    //     || scraped.title
-    //     || scraped.metaTitle;
-
-    // Determine the description
-    // const description = scraped.opengraphDescription
-    //     || scraped.twitterDescription
-    //     || scraped.description;
-
-    console.log(scraped);
+    // Close the JSDOM window
     window.close();
 
-    return data;
+    // Determine the title
+    const title = scraped.opengraphTitle
+        || scraped.twitterTitle
+        || scraped.title
+        || scraped.metaTitle;
+
+    // Determine the description
+    const description = scraped.opengraphDescription
+        || scraped.twitterDescription
+        || scraped.metaDescription;
+
+    // Icon
+    const icon = scraped.shortcutIcon
+        || scraped.shortcutIcon2
+        || scraped.icon
+        || scraped.appleTouchIcon
+        || scraped.msTileImage;
+
+    // Banner
+    const banner = scraped.opengraphImage
+        || scraped.twitterImage
+        || scraped.imageSrc;
+
+    // Color
+    const color = scraped.themeColor
+        || scraped.msTileColor;
+
+    // Return the scraped data, allowing original data to overwrite
+    return {
+        title,
+        description,
+        icon,
+        banner,
+        color,
+        ...data,
+    };
 };
