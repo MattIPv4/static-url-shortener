@@ -117,11 +117,11 @@ module.exports = async (file, data) => {
 
     // Return the scraped data, allowing original data to overwrite
     return {
-        title,
-        description,
-        icon,
-        banner,
-        color,
         ...data,
+        title: data.title ?? title,
+        description: data.description ?? description,
+        icon: data.icon ?? icon,
+        banner: data.banner ?? banner,
+        color: data.color ?? color,
     };
 };
