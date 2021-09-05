@@ -156,6 +156,34 @@ const cli = yargs
             .demandOption([ 't', 'o' ]),
         argv => exportData(argv.type, argv.out, argv.data))
 
+    // Define the GitHub Actions commands
+    .command('github', 'Commands for integration with GitHub Actions',
+        cmd => cmd
+            // Require a sub-command, this is just a group
+            .demandCommand(1, 'You must provide a sub-command to use')
+
+            // Define the PR validation subcommand
+            .command('pull-request', 'Generate static redirect HTML files',
+                subCmd => subCmd
+                    .option('t', {
+                        alias: 'token',
+                        describe: 'Access token for authenticating with GitHub\'s API',
+                        type: 'string'
+                    })
+                    .option('r', {
+                        alias: 'repository',
+                        describe: 'Full repository name on GitHub, owner & name',
+                        type: 'string'
+                    })
+                    .option('n', {
+                        alias: 'number',
+                        describe: 'Number of the pull request to validate',
+                        type: 'number'
+                    })
+                    .demandOption(['t', 'r', 'n']),
+                argv => require('./github/pull-request')(argv.token, argv.repository, argv.number)),
+        () => {})
+
     // Provide help option for everything
     .help()
 
