@@ -118,10 +118,10 @@ module.exports = async (file, data) => {
     // Return the scraped data, allowing original data to overwrite
     return {
         ...data,
-        title: data.title ?? title,
-        description: data.description ?? description,
-        icon: data.icon ?? icon,
-        banner: data.banner ?? banner,
-        color: data.color ?? color,
+        title: data.title ?? title ?? undefined,
+        description: data.description ?? description ?? undefined,
+        icon: data.icon ?? icon ?? undefined,
+        banner: data.banner ?? banner ?? undefined,
+        color: data.color ?? color ?? undefined,
     };
 };
